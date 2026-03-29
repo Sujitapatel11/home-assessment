@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 0; background: #f0f2f5; }
+    nav { background: #4f46e5; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    nav button { background: white; color: #4f46e5; border: none; padding: 0.4rem 1rem; border-radius: 4px; cursor: pointer; }
+    .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    h3 { margin-bottom: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+    .card { background: white; border-radius: 8px; padding: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .card h4 { margin: 0 0 0.4rem; }
+    .card p { margin: 0.2rem 0; font-size: 0.9rem; color: #555; }
+    .card .price { font-weight: bold; color: #4f46e5; margin-top: 0.5rem; }
+    .card button { margin-top: 0.8rem; width: 100%; padding: 0.4rem; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-add { background: #4f46e5; color: white; }
+    .btn-remove { background: #ef4444; color: white; }
+    .tabs { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+    .tabs button { padding: 0.5rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; background: #e0e7ff; color: #4f46e5; font-weight: bold; }
+    .tabs button.active { background: #4f46e5; color: white; }
+  </style>
+</head>
+<body>
+  <nav>
+    <span>Buyer Portal</span>
+    <button onclick="logout()">Logout</button>
+  </nav>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="active" id="tab-properties" onclick="showTab('properties')">All Properties</button>
+      <button id="tab-favourites" onclick="showTab('favourites')">My Favourites</button>
+    </div>
+
+    <div id="section-properties">
+      <h3>All Properties</h3>
+      <div class="grid" id="properties-grid"></div>
+    </div>
+
+    <div id="section-favourites" style="display:none">
+      <h3>My Favourites</h3>
+      <div class="grid" id="favourites-grid"></div>
+    </div>
+  </div>
+
+  <script>
+    const BASE = 'http://127.0.0.1:8000';
+    let favouriteMap = {}; // { property_id: favourite_id }
+
+    function getToken() {
+      return localStorage.getItem('access');
+    }
+
+    function authHeaders() {
+      return { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json' };
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = '/';
+    }
+
+    function showTab(tab) {
+      document.getElementById('section-properties').style.display = tab === 'properties' ? '' : 'none';
+      document.getElementById('section-favourites').style.display = tab === 'favourites' ? '' : 'none';
+      document.getElementById('tab-properties').classList.toggle('active', tab === 'properties');
+      document.getElementById('tab-favourites').classList.toggle('active', tab === 'favourites');
+      if (tab === 'favourites') loadFavourites();
+    }
+
+    async function loadFavourites() {
+      const res = await fetch(`${BASE}/api/favourites/`, { headers: authHeaders() });
+      if (res.status === 401) return logout();
+      const data = await res.json();
+
+      favouriteMap = {};
+      data.forEach(f => favouriteMap[f.property_detail.id] = f.id);
+
+      const grid = document.getElementById('favourites-grid');
+      grid.innerHTML = data.length === 0 ? '<p>No favourites yet.</p>' : '';
+      data.forEach(f => {
+        grid.appendChild(buildCard(f.property_detail, true, f.id));
+      });
+    }
+
+    async function loadProperties() {
+      const res = await fetch(`${BASE}/api/properties/`, { headers: authHeaders() });
+      if (res.status === 401) return logout();
+      const properties = await res.json();
+
+      // load favourites first to know which are already favourited
+      const favRes = await fetch(`${BASE}/api/favourites/`, { headers: authHeaders() });
+      const favData = await favRes.json();
+      favouriteMap = {};
+      favData.forEach(f => favouriteMap[f.property_detail.id] = f.id);
+
+      const grid = document.getElementById('properties-grid');
+      grid.innerHTML = properties.length === 0 ? '<p>No properties available.</p>' : '';
+      properties.forEach(p => {
+        const isFav = !!favouriteMap[p.id];
+        grid.appendChild(buildCard(p, isFav, favouriteMap[p.id]));
+      });
+    }
+
+    function buildCard(p, isFav, favId) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.id = `card-${p.id}`;
+      card.innerHTML = `
+        <h4>${p.title}</h4>
+        <p>${p.location}</p>
+        <p>${p.description}</p>
+        <p class="price">₹${parseFloat(p.price).toLocaleString()}</p>
+        <button class="${isFav ? 'btn-remove' : 'btn-add'}" onclick="${isFav ? `removeFavourite(${favId}, ${p.id})` : `addFavourite(${p.id})`}">
+          ${isFav ? 'Remove Favourite' : 'Add to Favourites'}
+        </button>
+      `;
+      return card;
+    }
+
+    async function addFavourite(propertyId) {
+      const res = await fetch(`${BASE}/api/favourites/add/`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ property: propertyId })
+      });
+      if (res.ok) loadProperties();
+    }
+
+    async function removeFavourite(favId, propertyId) {
+      const res = await fetch(`${BASE}/api/favourites/${favId}/remove/`, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+      if (res.ok) loadProperties();
+    }
+
+    // guard: redirect to login if no token
+    if (!getToken()) window.location.href = '/';
+    else loadProperties();
+  </script>
+</body>
+</html>
