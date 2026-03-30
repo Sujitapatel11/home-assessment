@@ -1,92 +1,166 @@
-# Buyer Portal
+🏠 Buyer Portal – Property Listing & Favourites System
 
-A simple property browsing app where users can register, log in, view properties, and save their favourites.
+📌 Overview
 
-Built with Django + Django REST Framework for the backend and plain HTML/JS for the frontend.
+This project is a Django-based web application developed as part of a take-home assessment.
 
----
-
-## What it does
-
-- Register and log in as a buyer
-- Browse a list of properties
-- Add or remove properties from your favourites
-- Your favourites are private — other users can't see them
+It implements a buyer portal where users can register, log in, browse property listings, and manage their favourite properties. The primary focus is on backend architecture, authentication, and user-specific data handling.
 
 ---
 
-## Project Structure
+🚀 Live Application
 
-```
-buyer_portal/
-├── config/          # Django project settings and URLs
-├── accounts/        # Register and login (JWT auth)
-├── properties/      # Property listing
-├── favourites/      # Add/remove/list favourites
-├── frontend/        # Plain HTML pages (login, register, dashboard)
-└── manage.py
-```
+👉 https://home-assessment.onrender.com
 
 ---
 
-## Setup
+📂 GitHub Repository
 
-Make sure you have Python installed, then:
+👉 https://github.com/Sujitapatel11/home-assessment
 
-```bash
-# Install dependencies
+---
+
+🔗 LinkedIn
+
+👉 https://www.linkedin.com/in/suji57
+
+---
+
+🛠️ Tech Stack
+
+- Backend: Django (Python)
+- Frontend: HTML, CSS (Django Templates)
+- Database: SQLite
+- Deployment: Render (Gunicorn)
+- Version Control: Git & GitHub
+
+---
+
+✨ Features
+
+🔐 Authentication
+
+- User registration and login
+- Secure password handling using Django authentication system
+
+🏡 Property Listings
+
+- View available properties
+- Each property includes:
+  - Title
+  - Description
+  - Price
+  - Location
+
+❤️ Favourites System
+
+- Add properties to favourites
+- Remove properties from favourites
+- Each user can only access their own favourites
+
+🧑‍💼 Admin Panel
+
+- Manage users, properties, and favourites
+- Add/update/delete property listings via Django admin
+
+---
+
+🧠 Core Concepts Implemented
+
+- RESTful backend structure using Django
+- User-specific data isolation
+- Secure authentication flow
+- Relational data modeling (User ↔ Property ↔ Favourite)
+- Deployment using Gunicorn on Render
+
+---
+
+⚙️ Project Structure
+
+home-assessment/
+│
+├── accounts/        # User authentication
+├── properties/      # Property models & logic
+├── favourites/      # Favourite functionality
+├── config/          # Django settings & WSGI
+├── templates/       # Frontend templates
+│
+├── manage.py
+├── requirements.txt
+└── README.md
+
+---
+
+⚙️ Setup Instructions (Local Development)
+
+1. Clone the repository
+
+git clone https://github.com/Sujitapatel11/home-assessment.git
+cd home-assessment
+
+2. Create virtual environment
+
+python -m venv venv
+venv\Scripts\activate   # Windows
+
+3. Install dependencies
+
 pip install -r requirements.txt
 
-# Run migrations
+4. Apply migrations
+
 python manage.py migrate
 
-# Create an admin user (to add properties)
+5. Run the server
+
+python manage.py runserver
+
+---
+
+🔑 Admin Access
+
+To access the admin panel:
+
+/admin
+
+Create a superuser locally:
+
 python manage.py createsuperuser
 
-# Start the server
-python manage.py runserver
-```
+👉 Admin credentials are not shared publicly for security reasons.
 
 ---
 
-## Adding Properties
+🌐 Deployment Details
 
-Go to `http://127.0.0.1:8000/admin/` and log in with your superuser account. Add a few properties from there so they show up on the dashboard.
-
----
-
-## Using the App
-
-1. Open `frontend/register.html` in your browser
-2. Create an account
-3. You'll be redirected to `login.html` — log in
-4. On the dashboard you'll see all properties
-5. Click "Add to Favourites" on any property
-6. Switch to the "My Favourites" tab to see your saved ones
-7. Click "Remove Favourite" to remove one
+- Deployed on Render
+- Uses Gunicorn as WSGI server
+- Environment variables used for secure configuration
+- Free-tier deployment (may take a few seconds to wake up)
 
 ---
 
-## API Endpoints
+📌 Key Highlights
 
-| Method | URL | Description |
-|--------|-----|-------------|
-| POST | `/api/accounts/register/` | Create account |
-| POST | `/api/accounts/login/` | Get JWT tokens |
-| GET | `/api/properties/` | List all properties |
-| GET | `/api/favourites/` | List my favourites |
-| POST | `/api/favourites/add/` | Add a favourite |
-| DELETE | `/api/favourites/<id>/remove/` | Remove a favourite |
-
-All endpoints except register and login require a JWT token in the header:
-```
-Authorization: Bearer <access_token>
-```
+- Clean and modular Django project structure
+- Functional CRUD operations
+- Secure authentication system
+- Proper user-level data access control
+- End-to-end deployment
 
 ---
 
-## Notes
+⚠️ Notes
 
-- The frontend uses `localStorage` to store the JWT token
-- SQLite is used as the database (no extra setup needed)
-- `CORS_ALLOW_ALL_ORIGINS = True` is set for local development only
+- SQLite is used for simplicity (not production-grade)
+- UI is intentionally minimal (focus on backend logic)
+- Static/media handling can be extended for production use
+
+---
+
+👨‍💻 Author
+
+Sujita Patel
+CSE Student | Backend Developer
+
+🔗 LinkedIn: https://www.linkedin.com/in/suji57
