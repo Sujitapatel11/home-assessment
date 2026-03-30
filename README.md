@@ -79,12 +79,13 @@ It implements a buyer portal where users can register, log in, browse property l
 
 home-assessment/
 │
-├── accounts/        # User authentication
-├── properties/      # Property models & logic
-├── favourites/      # Favourite functionality
-├── config/          # Django settings & WSGI
-├── templates/       # Frontend templates
+├── accounts/        # User registration & authentication
+├── properties/      # Property model, views & serializers
+├── favourites/      # Favourite model, views & serializers
+├── config/          # Django settings, URLs & WSGI
+├── frontend/        # HTML pages (login, register, dashboard)
 │
+├── build.sh         # Render build script
 ├── manage.py
 ├── requirements.txt
 └── README.md
